@@ -43,7 +43,7 @@ const SCENES = {
   },
 
   /** A real import through importProgressFile, then Collectibles chip + a count trophy's guide. */
-  async import(api) {
+  async 'import'(api) {
     api.setSettings({ spoilers: 'show' });
     const file = new File([JSON.stringify(exportedSave())], 'platinum-run-progress-2026-11-21.json', { type: 'application/json' });
     // Validate the same way the Import button does, then let the shell merge it and show its toast.
