@@ -3,23 +3,108 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GTA VI trophy checklist</title>
-<link rel="stylesheet" href="style.css">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="PLATINUM RUN: unofficial GTA VI trophy guide and tracker. All 55 PS5 trophies, platinum roadmap, missables, cited guides.">
+<title>PLATINUM RUN · GTA VI trophy guide &amp; tracker</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M9 4h14v7a7 7 0 0 1-14 0z' fill='%23ff6a4d'/%3E%3Cpath d='M14 18h4v5h-4zM10 24h12v4H10z' fill='%23bcd7ff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="./style.css">
+<script type="module" src="./src/app-shell.js"></script>
 </head>
 <body>
-<header>
-  <h1>GTA VI trophy checklist</h1>
-  <p id="progress">0 of 55 earned</p>
+<header class="top-bar">
+  <a id="brand" class="brand" href="#/list" aria-label="PLATINUM RUN home">
+    <svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+      <defs><linearGradient id="mark-sunset" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6a4d"/><stop offset="1" stop-color="#e8418f"/></linearGradient></defs>
+      <path d="M9 4h14v7a7 7 0 0 1-14 0z" fill="url(#mark-sunset)"/>
+      <path d="M9 6H5a4 4 0 0 0 4 6M23 6h4a4 4 0 0 1-4 6" fill="none" stroke="#ff6a4d" stroke-width="2"/>
+      <path d="M14 18h4v5h-4zM10 24h12v4H10z" fill="#bcd7ff"/>
+      <path d="M13 8l3 5 3-5" fill="none" stroke="#0f1220" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span class="brand-name">PLATINUM RUN</span>
+    <span class="brand-tag">GTA VI trophy guide &amp; tracker</span>
+  </a>
+  <div class="progress-block">
+    <svg id="progress-ring" class="progress-ring" viewBox="0 0 40 40" width="40" height="40" role="img" aria-label="Platinum progress">
+      <circle class="ring-track" cx="20" cy="20" r="16"/>
+      <circle class="ring-value" cx="20" cy="20" r="16" pathLength="100" stroke-dasharray="0 100"/>
+    </svg>
+    <p id="progress-text" class="progress-text"><strong>0 / 55</strong> earned · 0%</p>
+  </div>
+  <ul id="grade-tally" class="grade-tally" aria-label="Trophies earned by grade">
+    <li class="tally-item" data-grade="platinum"><i class="grade-icon grade-platinum"></i><span>0/1</span></li>
+    <li class="tally-item" data-grade="gold"><i class="grade-icon grade-gold"></i><span>0/–</span></li>
+    <li class="tally-item" data-grade="silver"><i class="grade-icon grade-silver"></i><span>0/–</span></li>
+    <li class="tally-item" data-grade="bronze"><i class="grade-icon grade-bronze"></i><span>0/–</span></li>
+  </ul>
+  <div class="header-actions">
+    <label class="spoiler-switch"><input id="spoiler-toggle" type="checkbox" checked><span class="switch-track"></span>Hide story spoilers</label>
+    <button id="export-progress" class="btn" type="button">Export</button>
+    <button id="import-progress" class="btn" type="button">Import</button>
+    <input id="import-file" type="file" accept=".json,application/json" hidden>
+  </div>
 </header>
-<div class="controls">
-  <label>Grade <select id="grade"><option value="all">All</option><option value="platinum">Platinum</option><option value="gold">Gold</option><option value="silver">Silver</option><option value="bronze">Bronze</option></select></label>
-  <button id="export" type="button">Export progress</button>
-  <label class="import">Import progress <input id="import" type="file" accept="application/json"></label>
+
+<nav class="view-tabs" aria-label="Views">
+  <a id="nav-list" class="view-tab" href="#/list" aria-current="page">Trophy list</a>
+  <a id="nav-roadmap" class="view-tab" href="#/roadmap">Platinum roadmap</a>
+  <ul id="coverage-strip" class="coverage-strip" aria-label="Guide coverage"></ul>
+</nav>
+
+<div class="layout">
+  <aside class="filter-column" aria-label="Search and filters">
+    <label class="field-label" for="search">Search trophies</label>
+    <input id="search" class="search-input" type="search" placeholder="Name, mission, collectible…  ( / )" autocomplete="off">
+    <p class="field-label">Show</p>
+    <div id="filter-chips" class="filter-chips" role="group" aria-label="Trophy type filters">
+      <button class="chip" type="button" data-kind="story" aria-pressed="false">Story <b class="chip-count">–</b></button>
+      <button class="chip chip-missable" type="button" data-kind="missable" aria-pressed="false">Missable <b class="chip-count">–</b></button>
+      <button class="chip" type="button" data-kind="collectibles" aria-pressed="false">Collectibles <b class="chip-count">–</b></button>
+      <button class="chip" type="button" data-kind="activities" aria-pressed="false">Activities <b class="chip-count">–</b></button>
+      <button class="chip" type="button" data-kind="online" aria-pressed="false" title="No online trophies">Online <b class="chip-count">0</b></button>
+    </div>
+    <div class="filter-pair">
+      <div>
+        <label class="field-label" for="grade-filter">Grade</label>
+        <select id="grade-filter" class="select">
+          <option value="all">All grades</option><option value="platinum">Platinum</option><option value="gold">Gold</option><option value="silver">Silver</option><option value="bronze">Bronze</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label" for="status-filter">Status</label>
+        <select id="status-filter" class="select">
+          <option value="all">All</option><option value="unearned">Not earned</option><option value="earned">Earned</option>
+        </select>
+      </div>
+    </div>
+    <label class="field-label" for="sort-select">Order</label>
+    <select id="sort-select" class="select">
+      <option value="roadmap">Roadmap order</option><option value="list">Official list order</option><option value="grade">Grade</option>
+    </select>
+    <section id="missables-strip" class="missables-strip" aria-label="Missable trophies"></section>
+    <nav id="roadmap-mini" class="roadmap-mini" aria-label="Roadmap progress"></nav>
+  </aside>
+
+  <main id="trophy-list" class="trophy-list" aria-label="Trophy checklist" aria-live="polite">
+    <p class="list-loading">Loading 55 trophies…</p>
+  </main>
+
+  <section id="roadmap" class="roadmap-view" aria-label="Platinum roadmap" hidden></section>
+
+  <aside id="guide-panel" class="guide-panel" aria-label="Trophy guide">
+    <div class="guide-empty">
+      <i class="grade-icon grade-platinum guide-empty-icon"></i>
+      <h2>Pick a trophy</h2>
+      <p>Select any row to open its guide: when to get it, missable warnings, step-by-step notes and the sources each tip comes from.</p>
+      <p class="guide-empty-keys">Press <kbd>/</kbd> to search.</p>
+    </div>
+  </aside>
 </div>
-<table>
-  <thead><tr><th>Earned</th><th>Trophy</th><th>Grade</th><th>How to get it</th></tr></thead>
-  <tbody id="rows"></tbody>
-</table>
-<script type="module" src="app.js"></script>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<footer class="site-footer">
+  <p id="load-stats" class="load-stats">First load: measuring…</p>
+  <p class="disclaimer">Unofficial fan guide · not affiliated with Rockstar Games · sources cited per trophy</p>
+</footer>
 </body>
 </html>

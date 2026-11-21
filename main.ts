@@ -1,18 +1,31 @@
-// A working gta6-trophy-guide-01 entry (Node 22, standard library only): the guide is this directory's app/ folder,
-// plain static files a browser opens at app/index.html (ES modules, CSS, no build step), offline: it loads nothing
-// over the network, and its trophy list and guides are app/data/trophies.json. The program hands it in: it copies app/
-// and screenshots/ from beside this file to /output and writes /output/dossier.json, the summary the judge reads (your
-// screenshots, the first load's files and bytes, and your source), with the vendored make.fun library. Leave
-// vendor/makefun-frontend.ts as it is: the scorer requires dossier.json to be byte for byte what its own copy writes.
+// PLATINUM RUN · GTA VI trophy guide & tracker — make.fun entry for gta6-trophy-guide-01 (Node 22+, standard library).
 //
-// Only the plumbing, not a winner: a plain checklist of the 55 trophies with a one-line hint each. Write a real guide
-// for every trophy in your own words, a roadmap to the platinum, filters and a spoiler setting in app/, put 3 or 4 PNG
-// or JPEG screenshots of it in screenshots/ (the first by name is the cover; shots.json says which views this
-// starter's were taken of), and run it.
+// The app is app/: plain static files (index.html, style.css, ES modules in app/src/), no framework, no build step,
+// fully offline. It tracks all 55 PS5 trophies of Grand Theft Auto VI with their official names, descriptions and
+// grades, saves progress in localStorage with JSON export/import, filters by story / missable / collectibles /
+// activities / online, hides story trophies behind a spoiler shield until earned, lays out a 5-stage platinum roadmap
+// with missable flags, and opens an own-words guide per trophy with its named, linked sources.
 //
-// Serve it locally with `node serve.ts`, then open http://localhost:8080.
-// Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
-//   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
+// app/src/ — one job per file:
+//   app-shell.js          controller: wires the views, #/list #/roadmap #/trophy/<id> routing, '/' focuses search
+//   trophy-data.js        loadTrophyData(): fetches data/trophies.json after first paint, cached; grade order/points
+//   progress-storage.js   saveProgress / loadProgress, toggleEarned, setCounter, exportProgressFile, importProgressFile
+//   trophy-filters.js     applyTrophyFilters, countByFilter (chip badges), matchesSearch
+//   spoiler-shield.js     isSpoilerHidden, maskedName, maskedDescription for unearned story trophies
+//   roadmap-builder.js    buildPlatinumRoadmap (5 stages), listMissables in story order
+//   trophy-list-view.js   renderTrophyList: keyed in-place rows with grade, kind chips, counters, earned checkbox
+//   guide-panel.js        renderGuidePanel: guide text, steps, tips, missable warning and the cited Sources links
+//   roadmap-view.js       renderRoadmapView and the compact missables strip
+//   first-load-stats.js   measures the real first-load files and gzip bytes for the footer (loaded after render)
+//   screenshot-scenes.js  ?shot=<scene> presets, imported only by the screenshot tool
+// app/data/trophies.json — the 55 official trophies plus our guides, roadmap stages, counts and the source list.
+// tools/take-screenshots.mjs — serves app/, drives headless Chrome at 1280x800 and writes screenshots/*.jpg.
+//
+// This program hands the entry in: it copies app/ and screenshots/ to /output and writes /output/dossier.json with
+// buildDossier from the vendored make.fun library (leave vendor/ byte-identical: the scorer checks it).
+//
+// Run locally:  node serve.ts   then open http://localhost:8080
+// Build output: mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';

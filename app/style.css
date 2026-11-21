@@ -1,7 +1,356 @@
-body { font-family: Arial, sans-serif; margin: 24px; color: #222; }
-header { display: flex; justify-content: space-between; align-items: baseline; }
-.controls { display: flex; gap: 16px; margin: 12px 0; align-items: center; }
-.import input { font-size: 12px; }
-table { border-collapse: collapse; width: 100%; }
-th, td { border-bottom: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; white-space: pre-line; }
-th { background: #f2f2f2; }
+/* PLATINUM RUN — dark sunset theme. System fonts only. */
+:root {
+--ink:#0f1220;--panel:#171b2e;--panel-2: #1e2339;--line:#2a3050;
+--text:#e9ebf5;--muted:#9aa1bd;--faint:#6c7393;
+--coral:#ff6a4d;--magenta:#e8418f;--cyan:#2fd4e6;--danger:#ff4d5e;--ok:#3ddc97;
+--sunset:linear-gradient(135deg, var(--coral), var(--magenta));
+--platinum:#bcd7ff;--gold:#f5c04a;--silver:#c9ced6;--bronze:#c98a55;
+--radius:10px;--header-h:60px;
+font:14.5px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+color-scheme:dark;
+}
+[hidden] { display:none !important;}
+*, *::before, *::after { box-sizing:border-box;}
+html, body { margin:0;background:var(--ink);color:var(--text);}
+body { min-height:100vh;display:flex;flex-direction:column;}
+a { color:var(--cyan);}
+button, input, select { font:inherit;color:inherit;}
+:focus-visible { outline:2px solid var(--cyan);outline-offset:2px;}
+h2, h3, p { margin:0;}
+kbd { font:12px ui-monospace, SFMono-Regular, Menlo, monospace;padding:1px 5px;border:1px solid var(--line);border-radius:4px;background:var(--panel-2);}
+
+/* ---------- Header ---------- */
+.top-bar {
+position:sticky;top:0;z-index:20;height:var(--header-h);
+display:flex;align-items:center;gap:22px;padding:0 18px;
+background:rgba(15, 18, 32, .94);backdrop-filter:blur(8px);
+border-bottom:1px solid var(--line);
+}
+.top-bar::after { content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--sunset);opacity:.8;}
+.brand { display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--text);white-space:nowrap;}
+.brand-name { font-weight:800;letter-spacing:.12em;font-size:16px;background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.brand-tag { color:var(--muted);font-size:12.5px;padding-left:9px;border-left:1px solid var(--line);}
+.progress-block { display:flex;align-items:center;gap:9px;margin-left:auto;}
+.progress-ring { transform:rotate(-90deg);}
+.ring-track, .ring-value { fill:none;stroke-width:4.5;}
+.ring-track { stroke:var(--line);}
+.ring-value { stroke:var(--coral);stroke-linecap:round;transition:stroke-dasharray .4s ease;}
+.progress-text { font-size:13px;color:var(--muted);white-space:nowrap;}
+.progress-text strong { color:var(--text);font-size:15px;}
+.grade-tally { display:flex;gap:12px;list-style:none;margin:0;padding:0;}
+.tally-item { display:flex;align-items:center;gap:5px;font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted);}
+.header-actions { display:flex;align-items:center;gap:8px;}
+
+.btn {
+padding:6px 13px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);
+cursor:pointer;font-size:13px;font-weight:600;
+}
+.btn:hover { border-color:var(--coral);}
+
+.spoiler-switch { display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;margin-right:6px;white-space:nowrap;}
+.spoiler-switch input { position:absolute;opacity:0;width:1px;height:1px;}
+.switch-track { width:32px;height:18px;border-radius:9px;background:var(--line);position:relative;transition:background .2s;}
+.switch-track::after { content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--text);transition:transform .2s;}
+.spoiler-switch input:checked + .switch-track { background:var(--magenta);}
+.spoiler-switch input:checked + .switch-track::after { transform:translateX(14px);}
+.spoiler-switch input:focus-visible + .switch-track { outline:2px solid var(--cyan);outline-offset:2px;}
+
+/* ---------- Grade icons (CSS trophy cups) ---------- */
+.grade-icon {
+--cup:var(--bronze);display:inline-block;position:relative;flex:none;
+width:16px;height:18px;vertical-align:middle;
+}
+.grade-icon::before {
+content:"";position:absolute;left:2px;top:0;width:12px;height:10px;
+background:var(--cup);border-radius:2px 2px 7px 7px;
+box-shadow:-2px 1px 0 -1px var(--cup), 2px 1px 0 -1px var(--cup);
+}
+.grade-icon::after {
+content:"";position:absolute;left:4px;bottom:0;width:8px;height:3px;background:var(--cup);border-radius:1px;
+box-shadow:2px -4px 0 -1px var(--cup);
+}
+.grade-platinum { --cup:var(--platinum);filter:drop-shadow(0 0 4px rgba(188, 215, 255, .55));}
+.grade-gold { --cup:var(--gold);}
+.grade-silver { --cup:var(--silver);}
+.grade-bronze { --cup:var(--bronze);}
+.grade-label { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+.label-platinum { color:var(--platinum);}
+.label-gold { color:var(--gold);} .label-silver { color:var(--silver);} .label-bronze { color:var(--bronze);}
+
+/* ---------- Tabs ---------- */
+.view-tabs { display:flex;gap:4px;padding:10px 18px 0;}
+.view-tab { padding:7px 14px;border-radius:8px 8px 0 0;color:var(--muted);text-decoration:none;font-weight:600;font-size:13.5px;border-bottom:2px solid transparent;}
+.view-tab:hover { color:var(--text);}
+.view-tab[aria-current="page"], .view-tab.is-active { color:var(--text);border-bottom-color:var(--coral);}
+
+/* ---------- Layout ---------- */
+.layout {
+flex:1;display:grid;gap:14px;padding:10px 18px 14px;
+grid-template-columns:212px minmax(0, 1fr) 400px;
+grid-template-areas:"filters list guide";
+align-items:start;
+}
+.filter-column { grid-area:filters;position:sticky;top:calc(var(--header-h) + 10px);display:flex;flex-direction:column;gap:6px;}
+.trophy-list, .roadmap-view { grid-area:list;min-width:0;}
+.guide-panel {
+grid-area:guide;position:sticky;top:calc(var(--header-h) + 10px);
+max-height:calc(100vh - var(--header-h) - 24px);overflow-y:auto;
+background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;
+}
+
+/* ---------- Filters ---------- */
+.field-label { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin-top:8px;}
+.search-input, .select {
+width:100%;padding:6px 9px;border-radius:8px;border:1px solid var(--line);background:var(--panel);
+}
+.search-input:focus, .select:focus { border-color:var(--cyan);outline:none;}
+.filter-chips { display:flex;flex-wrap:wrap;gap:6px;}
+.chip {
+display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;
+border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:12.5px;font-weight:600;
+}
+.chip:hover { border-color:var(--muted);}
+.chip[aria-pressed="true"], .chip.is-on { background:var(--sunset);border-color:transparent;color:#fff;}
+.chip-count { font-size:11px;min-width:20px;padding:1px 6px;border-radius:999px;background:var(--ink);color:var(--muted);text-align:center;}
+.chip[aria-pressed="true"] .chip-count { background:rgba(0, 0, 0, .25);color:#fff;}
+.chip-missable:not([aria-pressed="true"]) .chip-count { color:var(--danger);}
+
+.missables-strip { margin-top:12px;display:flex;flex-direction:column;gap:6px;}
+.missables-strip:empty { display:none;}
+.missables-title { font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--danger);}
+.missable-item {
+display:block;width:100%;text-align:left;padding:6px 8px;border-radius:7px;cursor:pointer;
+border:1px solid rgba(255, 77, 94, .3);border-left:3px solid var(--danger);background:rgba(255, 77, 94, .07);font-size:12px;
+}
+.missable-item b { display:block;font-size:12.5px;}
+.missable-item small { color:var(--muted);}
+
+/* ---------- Trophy list ---------- */
+.trophy-list { display:flex;flex-direction:column;gap:3px;}
+.list-loading, .list-empty { padding:26px;text-align:center;color:var(--muted);background:var(--panel);border-radius:var(--radius);}
+.list-group-title { margin:10px 2px 3px;font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);}
+.trophy-row {
+display:grid;grid-template-columns:22px minmax(0, 1fr) auto 26px;align-items:center;gap:10px;
+min-height:44px;padding:5px 10px 5px 12px;border-radius:8px;cursor:pointer;
+background:var(--panel);border:1px solid transparent;border-left:3px solid transparent;
+}
+.trophy-row:hover { background:var(--panel-2);}
+.trophy-row.is-selected, .trophy-row[aria-selected="true"] { border-color:var(--line);border-left-color:var(--coral);background:var(--panel-2);}
+.row-main { min-width:0;}
+.row-name { font-weight:650;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-desc { color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-meta { display:flex;align-items:center;gap:6px;flex-wrap:nowrap;}
+.kind-chip { font-size:10.5px;padding:1px 6px;border-radius:4px;background:var(--ink);color:var(--muted);text-transform:lowercase;white-space:nowrap;}
+.missable-flag {
+font-size:10px;font-weight:800;letter-spacing:.08em;padding:2px 6px;border-radius:4px;
+background:var(--danger);color:#fff;white-space:nowrap;
+}
+.missable-flag.is-risk { background:transparent;color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold);}
+.row-counter { font-size:12px;font-variant-numeric:tabular-nums;color:var(--cyan);white-space:nowrap;}
+.counter-bar { display:block;width:44px;height:3px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:2px;}
+.counter-bar > i { display:block;height:100%;background:var(--cyan);}
+.earned-check {
+appearance:none;width:22px;height:22px;margin:0;border-radius:6px;cursor:pointer;
+border:2px solid var(--line);background:var(--ink);display:grid;place-content:center;
+}
+.earned-check:hover { border-color:var(--ok);}
+.earned-check:checked { background:var(--ok);border-color:var(--ok);}
+.earned-check:checked::after { content:"";width:9px;height:5px;border:solid var(--ink);border-width:0 0 2.5px 2.5px;transform:translateY(-1px) rotate(-45deg);}
+.trophy-row.is-earned { background:rgba(23, 27, 46, .6);border-left-color:rgba(61, 220, 151, .55);}
+.trophy-row.is-earned .row-desc, .trophy-row.is-earned .grade-icon, .trophy-row.is-earned .row-meta { opacity:.6;}
+.trophy-row.is-earned .row-name { color:var(--muted);}
+
+/* Spoiler-masked rows */
+.is-masked .row-name, .masked-text { color:var(--muted);font-style:italic;}
+.is-masked .row-name::before, .masked-lock::before {
+content:"";display:inline-block;width:9px;height:7px;margin-right:7px;vertical-align:0;
+background:var(--muted);border-radius:1.5px;box-shadow:0 -4px 0 -1px var(--panel), 0 -5px 0 0 var(--muted);
+}
+.is-masked .row-desc, .masked-bar {
+color:transparent;text-shadow:0 0 7px rgba(154, 161, 189, .7);user-select:none;
+background:repeating-linear-gradient(90deg, rgba(154, 161, 189, .16) 0 46px, transparent 46px 52px);border-radius:3px;
+}
+
+/* ---------- Guide panel ---------- */
+.guide-empty { text-align:center;padding:40px 12px;color:var(--muted);}
+.guide-empty h2 { color:var(--text);font-size:18px;margin:10px 0 6px;}
+.guide-empty-icon { transform:scale(2.2);margin:14px 0 10px;}
+.guide-empty-keys { margin-top:12px;font-size:13px;}
+.guide-head { display:flex;gap:12px;align-items:flex-start;}
+.guide-head .grade-icon { transform:scale(1.6);margin:8px 6px 0 4px;}
+.guide-title { font-size:19px;line-height:1.25;font-weight:750;}
+.guide-desc { color:var(--muted);margin-top:4px;font-size:14px;}
+.guide-meta { display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px;}
+.guide-when { font-size:12.5px;color:var(--text);background:var(--ink);padding:3px 8px;border-radius:5px;}
+.guide-card { margin-top:12px;padding:12px 14px;border-radius:9px;background:var(--panel-2);border:1px solid var(--line);}
+.guide-card h3 { font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin-bottom:6px;}
+.guide-text { font-size:14.5px;line-height:1.55;}
+.guide-warning { border-color:rgba(255, 77, 94, .45);border-left:4px solid var(--danger);background:rgba(255, 77, 94, .09);}
+.guide-warning h3 { color:var(--danger);}
+.guide-steps, .guide-tips { margin:0;padding-left:0;list-style:none;}
+.guide-steps { counter-reset:step;}
+.guide-steps li { counter-increment:step;position:relative;padding:3px 0 3px 30px;}
+.guide-steps li::before {
+content:counter(step);position:absolute;left:0;top:3px;width:20px;height:20px;border-radius:50%;
+background:var(--sunset);color:#fff;font-size:11.5px;font-weight:800;display:grid;place-content:center;
+}
+.guide-tips li { position:relative;padding:2px 0 2px 16px;color:var(--muted);}
+.guide-tips li::before { content:"";position:absolute;left:2px;top:10px;width:6px;height:6px;border-radius:50%;background:var(--cyan);}
+.source-list { margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px;}
+.source-list a { display:inline-flex;align-items:center;gap:7px;text-decoration:none;font-size:13.5px;}
+.source-list a:hover { text-decoration:underline;}
+.source-list a::before {
+content:"";flex:none;width:11px;height:11px;border:1.5px solid currentColor;border-radius:2px;
+clip-path:polygon(0 0, 55% 0, 55% 30%, 30% 30%, 30% 70%, 70% 70%, 70% 45%, 100% 45%, 100% 100%, 0 100%);
+}
+.source-list a::after { content:"↗";font-size:12px;opacity:.7;}
+.counter-stepper { display:flex;align-items:center;gap:8px;}
+.counter-stepper button { width:30px;height:30px;border-radius:7px;border:1px solid var(--line);background:var(--ink);cursor:pointer;font-weight:700;}
+.counter-stepper input { width:64px;padding:5px;text-align:center;border-radius:7px;border:1px solid var(--line);background:var(--ink);}
+.guide-earned-toggle { margin-top:12px;width:100%;}
+
+/* ---------- Roadmap ---------- */
+.roadmap-view { display:flex;flex-direction:column;gap:10px;}
+.roadmap-intro { color:var(--muted);padding:2px 2px 4px;}
+.roadmap-stage { padding:14px 16px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--line);position:relative;}
+.roadmap-stage.is-done { border-color:rgba(61, 220, 151, .45);}
+.stage-head { display:flex;align-items:center;gap:12px;}
+.stage-number {
+flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-content:center;
+background:var(--sunset);color:#fff;font-weight:800;
+}
+.stage-title { font-size:16px;font-weight:750;}
+.stage-count { margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.stage-summary { margin:8px 0 10px 44px;color:var(--muted);}
+.stage-bar { margin-left:44px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;}
+.stage-bar > i { display:block;height:100%;background:var(--sunset);border-radius:3px;transition:width .4s;}
+.stage-trophies { margin:10px 0 0 44px;display:flex;flex-wrap:wrap;gap:5px;}
+.stage-trophy { display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:6px;background:var(--ink);border:1px solid var(--line);font-size:12.5px;cursor:pointer;}
+.stage-trophy.is-earned { opacity:.5;}
+
+.stage-trophy:hover { border-color:var(--muted);}
+.stage-trophy.is-selected { border-color:var(--coral);}
+.stage-trophy.is-missable { border-color:rgba(255, 77, 94, .55);}
+.stage-trophy.is-masked .stage-trophy-name { color:var(--muted);font-style:italic;}
+.stage-trophy-check { color:var(--ok);font-weight:800;}
+.roadmap-missables { padding:12px 16px;border-radius:var(--radius);border:1px solid rgba(255, 77, 94, .4);border-left:4px solid var(--danger);background:rgba(255, 77, 94, .06);}
+.roadmap-missables-title { font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--danger);margin-bottom:8px;}
+.roadmap-missables-empty { color:var(--muted);}
+.roadmap-missables-list { margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;}
+.roadmap-missable-open { display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:0;border:0;background:none;cursor:pointer;text-align:left;}
+.roadmap-missable-open:hover .roadmap-missable-name { text-decoration:underline;}
+.roadmap-missable-name { font-size:14px;}
+.roadmap-missable-note { margin:3px 0 0;color:var(--muted);font-size:13px;}
+.roadmap-missable.is-earned { opacity:.6;}
+
+/* ---------- Guide extras ---------- */
+.guide-head-text { min-width:0;}
+.guide-grade { padding:2px 7px;border-radius:5px;background:var(--ink);}
+.guide-badge { font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--ink);color:var(--muted);}
+.guide-badge-hidden { color:var(--platinum);box-shadow:inset 0 0 0 1px rgba(188, 215, 255, .35);}
+.guide-badge-earned { background:rgba(61, 220, 151, .16);color:var(--ok);}
+.guide-when { margin-top:8px;}
+.guide-when-label { font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
+.guide-warning.is-risk { border-color:rgba(245, 192, 74, .45);border-left-color:var(--gold);background:rgba(245, 192, 74, .08);}
+.guide-warning.is-risk h3 { color:var(--gold);}
+.guide-warning-text { font-size:13.5px;}
+.guide-sources { border-color:rgba(47, 212, 230, .35);}
+.source-item { display:block;}
+.source-name { font-weight:600;}
+.source-domain { color:var(--faint);font-size:11.5px;}
+.guide-reveal p { margin-bottom:10px;color:var(--muted);}
+.guide-reveal-button { width:100%;}
+.counter-of { color:var(--muted);font-variant-numeric:tabular-nums;}
+.chapter-chip { color:var(--text);text-transform:none;}
+.guide-earned-toggle.is-earned { border-color:var(--ok);color:var(--ok);}
+
+/* ---------- Toast & footer ---------- */
+.toast {
+position:fixed;left:50%;bottom:22px;transform:translate(-50%, 20px);opacity:0;pointer-events:none;
+padding:10px 16px;border-radius:9px;background:var(--panel-2);border:1px solid var(--cyan);
+box-shadow:0 10px 30px rgba(0, 0, 0, .45);transition:opacity .2s, transform .2s;z-index:40;
+}
+.toast:not(:empty).is-visible, .toast.is-visible { opacity:1;transform:translate(-50%, 0);}
+.site-footer { display:flex;justify-content:space-between;gap:12px;padding:10px 18px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--faint);}
+.load-stats { font-variant-numeric:tabular-nums;}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1180px) {
+.brand-tag { display:none;}
+.layout { grid-template-columns:190px minmax(0, 1fr) 340px;}
+}
+@media (max-width:900px) {
+.top-bar { height:auto;flex-wrap:wrap;gap:10px;padding:10px 14px;position:static;}
+.progress-block { margin-left:0;}
+.layout { grid-template-columns:1fr;grid-template-areas:"filters" "list" "guide";padding:10px 12px;}
+.filter-column, .guide-panel { position:static;max-height:none;}
+.filter-chips { gap:5px;}
+.row-meta .kind-chip { display:none;}
+.site-footer { flex-direction:column;}
+}
+@media (prefers-reduced-motion:reduce) { * { transition:none !important;} }
+
+/* Coverage strip: what the data covers, counted at run time (right side of the view tabs). */
+.coverage-strip { display:flex;flex-wrap:wrap;gap:6px;margin:0 0 6px auto;padding:0;list-style:none;align-self:center;}
+.coverage-strip li { font-size:12px;color:var(--muted);padding:3px 9px;border:1px solid var(--line);border-radius:999px;white-space:nowrap;}
+.coverage-strip b { color:var(--text);font-variant-numeric:tabular-nums;}
+.chip.is-zero { opacity:.62;}
+.chip.is-zero .chip-count { background:transparent;border:1px dashed var(--line);}
+
+/* Desktop app shell: header, tabs and footer stay put; filters, list and guide scroll on their own. */
+@media (min-width:901px) {
+body { height:100vh;overflow:hidden;}
+.layout { min-height:0;align-items:stretch;grid-template-rows:minmax(0, 1fr);padding-bottom:10px;}
+.filter-column, .trophy-list, .roadmap-view, .guide-panel { position:static;max-height:none;min-height:0;overflow-y:auto;scrollbar-width:thin;}
+.trophy-list { padding-right:4px;}
+.site-footer { padding:6px 18px 8px;}
+}
+
+/* Compact guide pane: warning, our guide, sources and the first steps fit one screen. */
+.guide-panel { padding:14px 16px;}
+.guide-card { margin-top:10px;padding:10px 12px;}
+.guide-text { font-size:14px;line-height:1.5;}
+.guide-steps li { font-size:14px;padding:2px 0 2px 28px;}
+.source-list { gap:3px;}
+.source-item .source-link { display:flex;width:100%;min-width:0;}
+.source-item .source-name { min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.source-item .source-domain { margin-left:auto;flex:none;}
+
+.guide-meta { margin:8px 0 0;}
+.guide-when { margin-top:6px;line-height:1.4;}
+.guide-warning { padding:9px 12px;}
+.guide-warning h3 { display:inline;margin:0 6px 0 0;}
+.guide-warning-text { display:inline;}
+
+/* Counter stepper as one compact row under the guide header. */
+.guide-meta { align-items:center;}
+.guide-counter { display:flex;align-items:center;gap:8px;margin-left:auto;}
+.guide-counter-label { font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);}
+.counter-stepper { gap:5px;}
+.counter-stepper button { width:26px;height:26px;padding:0;}
+.counter-stepper input { width:52px;padding:3px;}
+.counter-of { color:var(--muted);font-variant-numeric:tabular-nums;}
+
+/* Sidebar roadmap summary. */
+.roadmap-mini { display:flex;flex-direction:column;gap:5px;margin-top:10px;}
+.roadmap-mini-title { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);text-decoration:none;}
+.roadmap-mini-stage {
+display:grid;grid-template-columns:18px minmax(0, 1fr) auto;align-items:center;column-gap:7px;
+padding:4px 8px;border-radius:7px;border:1px solid var(--line);color:var(--text);text-decoration:none;font-size:12.5px;
+background:linear-gradient(90deg, rgba(232, 65, 143, .26) var(--done, 0%), var(--panel) var(--done, 0%));
+}
+.roadmap-mini-stage:hover { border-color:var(--muted);}
+.roadmap-mini-number { width:18px;height:18px;border-radius:50%;display:grid;place-content:center;background:var(--sunset);color:#fff;font-size:10.5px;}
+.roadmap-mini-name { overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.roadmap-mini-count { color:var(--muted);font-variant-numeric:tabular-nums;}
+.roadmap-mini-stage.is-done { border-color:rgba(61, 220, 151, .45);}
+.filter-pair { display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.filter-pair > div { display:flex;flex-direction:column;gap:6px;min-width:0;}
+.filter-pair .select { padding:6px 4px;}
+.roadmap-mini { gap:4px;margin-top:6px;}
+.guide-card { margin-top:8px;padding:9px 12px;}
+.guide-card h3 { margin-bottom:4px;}
+.guide-steps li { line-height:1.4;padding:1px 0 1px 28px;}
+.guide-steps li::before { top:1px;}
+.guide-head .grade-icon { margin-top:4px;}
+.guide-reveal .guide-reveal-waiting { color:var(--text);font-size:13px;}
